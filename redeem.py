@@ -1,4 +1,3 @@
-import collections
 import requests
 import json
 
@@ -13,32 +12,14 @@ from bip32 import BIP32, ripemd160
 
 ''' Helpers '''
 
-class CountList(collections.abc.MutableSequence):
-    def __init__(self, *args):
-        self.list = list()
-        self.list.extend(list(args))
-
-    def __len__(self): return len(self.list)
-
-    def __getitem__(self, i): return self.list[i]
-
-    def __delitem__(self, i): del self.list[i]
-
-    def __setitem__(self, i, v):
-        self.list[i] = v
-
-    def insert(self, i, v):
-        self.list.insert(i, v)
+class CountList(list):
 
     def __iter__(self):
-        total = len(self.list)
-        for cnt, i in enumerate(self.list):
-            print(f'Output {cnt + 1} of {total}', end='\r')
-            yield i
+        total = len(self)
+        for i in range(total):
+            print(f'Output {i + 1} of {total}', end='\r')
+            yield self[i]
         print('')
-
-    def __str__(self):
-        return str(self.list)
 
 def sha256d(b: bytes):
     return sha256(sha256(b).digest()).digest()
@@ -232,9 +213,7 @@ for i in range(ADDRESSES_TO_CHECK):
 
 
 transaction = bitcoinTransaction(bytes.fromhex(chain_base_tx_raw))
-new_list = CountList()
-new_list.list = transaction.outputs
-transaction.outputs = new_list
+transaction.outputs = CountList(transaction.outputs)
 
 print('Grabbing locking scripts')
 idxs = [k for k in index_to_path.keys()]
