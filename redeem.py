@@ -109,7 +109,7 @@ EVRMORE_NODE_USER = 'username'
 EVRMORE_NODE_PASSWORD = 'password'
 
 ADDRESS_TO_SEND_TO = 'CHANGE ME'
-'''
+
 print('Getting blockhash 0')
 data = {
     'jsonrpc':'2.0',
@@ -131,9 +131,6 @@ data = {
 res = requests.post(f'http://{EVRMORE_NODE_USER}:{EVRMORE_NODE_PASSWORD}@{EVRMORE_NODE_IP}:{EVRMORE_NODE_PORT}', json=data)
 #print(res.text)
 chain_base_txid = json.loads(res.text)['result']['tx'][0]
-'''
-
-chain_base_txid = '0acb4e0704299ab6db7362a9eebd7249d1b54bc4228f2e6024f4f1acc43d04b4'
 
 print('Getting chainbase tx')
 data = {
