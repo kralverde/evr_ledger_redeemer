@@ -108,7 +108,7 @@ EVRMORE_NODE_PORT = 8819
 EVRMORE_NODE_USER = 'username'
 EVRMORE_NODE_PASSWORD = 'password'
 
-ADDRESS_TO_SEND_TO = 'CHANGE ME'
+ADDRESS_TO_SEND_TO = 'ETVDbrbHh7nHihSkVFCRaQVRnFdKbWqQEj'
 
 print('Getting blockhash 0')
 data = {
@@ -223,8 +223,8 @@ print(f'Total EVR amount: {amount/100_000_000}')
 print('Creating new unsigned tx')
 output = bitcoinOutput()
 
-# Static 0.005 EVR fee. Change this if you want
-output.amount = (amount - 500_000).to_bytes(8, 'little', signed=False)
+# Static 0.01 EVR fee. Change this if you want
+output.amount = (amount - 1_000_000).to_bytes(8, 'little', signed=False)
 raw_addr = base58.b58decode_check(ADDRESS_TO_SEND_TO)
 if raw_addr[0] != 33:
     raise Exception('Not sending to a p2pkh address')
@@ -246,15 +246,28 @@ new_tx.inputs = inputs
 
 new_tx_b = new_tx.serialize()
 
-import time
-sec_start = time.time()
-print('Grabbing trusted inputs (this will take a while since the tx is so big)')
 trusted_inputs = []
-for i, idx in enumerate(idxs):
-    trusted_inputs.append(app.getTrustedInput(transaction, idx))
-    print(f'Got input {i + 1} of {len(idxs)}')
+if os.path.exists('./trusted'):
+    print('Trusted inputs found: loading...')
+    for i in range(os.listdir('./trusted')):
+        with open(f'./trusted/{i}.dat', 'r') as f:
+            trusted_inputs.append(json.loads(f.read()))
 
-print(f'took {time.time() - sec_start} seconds')
+else:
+    print('No trusted input dat files found, parsing from ledger')
+    import time
+    sec_start = time.time()
+    print('Grabbing trusted inputs (this will take a while since the tx is so big)')
+    for i, idx in enumerate(idxs):
+        trusted_inputs.append(app.getTrustedInput(transaction, idx))
+        print(f'Got input {i + 1} of {len(idxs)}')
+    print(f'took {time.time() - sec_start} seconds')
+
+    print('Storing inputs just in case')
+    os.mkdir('./trusted')
+    for i, input in enumerate(trusted_inputs):
+        with open(f'./trusted/{i}.dat', 'w') as f:
+            f.write(json.dumps(input))
 
 print('Signing Tx')
 app.startUntrustedTransaction(True, 0, trusted_inputs, locking_scripts[0])
