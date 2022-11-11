@@ -1,5 +1,6 @@
 import requests
 import json
+import copy
 
 from hashlib import sha256
 
@@ -108,7 +109,7 @@ EVRMORE_NODE_PORT = 8819
 EVRMORE_NODE_USER = 'username'
 EVRMORE_NODE_PASSWORD = 'password'
 
-ADDRESS_TO_SEND_TO = 'CHANGEME'
+ADDRESS_TO_SEND_TO = 'CHANGE ME'
 
 print('Getting blockhash 0')
 data = {
@@ -249,9 +250,11 @@ new_tx_b = new_tx.serialize()
 trusted_inputs = []
 if os.path.exists('./trusted'):
     print('Trusted inputs found: loading...')
-    for i in range(os.listdir('./trusted')):
+    for i in range(len(os.listdir('./trusted'))):
         with open(f'./trusted/{i}.dat', 'r') as f:
-            trusted_inputs.append(json.loads(f.read()))
+            serialized = json.loads(f.read())
+            serialized['value'] = bytearray(bytes.fromhex(serialized['value']))
+            trusted_inputs.append(serialized)
 
 else:
     print('No trusted input dat files found, parsing from ledger')
@@ -266,8 +269,11 @@ else:
     print('Storing inputs just in case')
     os.mkdir('./trusted')
     for i, input in enumerate(trusted_inputs):
+        modified_input = copy.copy(input)
+        modified_input['value'] = modified_input['value'].hex()
+        serialized = json.dumps(modified_input)
         with open(f'./trusted/{i}.dat', 'w') as f:
-            f.write(json.dumps(input))
+            f.write(serialized)
 
 print('Signing Tx')
 app.startUntrustedTransaction(True, 0, trusted_inputs, locking_scripts[0])
