@@ -108,7 +108,7 @@ EVRMORE_NODE_PORT = 8819
 EVRMORE_NODE_USER = 'username'
 EVRMORE_NODE_PASSWORD = 'password'
 
-ADDRESS_TO_SEND_TO = 'ETVDbrbHh7nHihSkVFCRaQVRnFdKbWqQEj'
+ADDRESS_TO_SEND_TO = 'CHANGEME'
 
 print('Getting blockhash 0')
 data = {
