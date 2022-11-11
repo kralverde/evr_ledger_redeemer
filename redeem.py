@@ -1,3 +1,4 @@
+import collections
 import requests
 import json
 
@@ -11,6 +12,33 @@ from btchip.btchipUtils import *
 from bip32 import BIP32, ripemd160
 
 ''' Helpers '''
+
+class CountList(collections.abc.MutableSequence):
+    def __init__(self, *args):
+        self.list = list()
+        self.list.extend(list(args))
+
+    def __len__(self): return len(self.list)
+
+    def __getitem__(self, i): return self.list[i]
+
+    def __delitem__(self, i): del self.list[i]
+
+    def __setitem__(self, i, v):
+        self.list[i] = v
+
+    def insert(self, i, v):
+        self.list.insert(i, v)
+
+    def __iter__(self):
+        total = len(self.list)
+        for cnt, i in enumerate(self.list):
+            print(f'Output {cnt + 1} of {total}', end='\r')
+            yield i
+        print('')
+
+    def __str__(self):
+        return str(self.list)
 
 def sha256d(b: bytes):
     return sha256(sha256(b).digest()).digest()
@@ -100,7 +128,7 @@ EVRMORE_NODE_USER = 'username'
 EVRMORE_NODE_PASSWORD = 'password'
 
 ADDRESS_TO_SEND_TO = 'CHANGE ME'
-
+'''
 print('Getting blockhash 0')
 data = {
     'jsonrpc':'2.0',
@@ -122,6 +150,9 @@ data = {
 res = requests.post(f'http://{EVRMORE_NODE_USER}:{EVRMORE_NODE_PASSWORD}@{EVRMORE_NODE_IP}:{EVRMORE_NODE_PORT}', json=data)
 #print(res.text)
 chain_base_txid = json.loads(res.text)['result']['tx'][0]
+'''
+
+chain_base_txid = '0acb4e0704299ab6db7362a9eebd7249d1b54bc4228f2e6024f4f1acc43d04b4'
 
 print('Getting chainbase tx')
 data = {
@@ -201,6 +232,9 @@ for i in range(ADDRESSES_TO_CHECK):
 
 
 transaction = bitcoinTransaction(bytes.fromhex(chain_base_tx_raw))
+new_list = CountList()
+new_list.list = transaction.outputs
+transaction.outputs = new_list
 
 print('Grabbing locking scripts')
 idxs = [k for k in index_to_path.keys()]
