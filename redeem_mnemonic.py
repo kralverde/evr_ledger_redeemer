@@ -313,7 +313,7 @@ if not checksum_ok:
 
 print(f'valid mnemonic (lang: {name})')
 
-seed = bip39_to_seed(MNEMONIC, MNEMONIC_PASSPHRASE)
+seed = bip39_to_seed(normalize_text(MNEMONIC), MNEMONIC_PASSPHRASE)
 root_node = BIP32.from_seed(seed)
 
 print('Getting blockhash 0')
