@@ -3,3 +3,5 @@ base58==2.1.1
 bip32==3.3
 
 trezor[hidapi]==0.13.4
+
+ecdsa==0.18.0
